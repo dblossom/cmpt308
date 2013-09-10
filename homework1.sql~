@@ -4,3 +4,5 @@
 -- 1
 SELECT * 
 FROM customers;
+
+--adding something
