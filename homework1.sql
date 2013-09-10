@@ -8,3 +8,5 @@ FROM customers;
 --adding something
 
 -- blah
+
+-- one more thing

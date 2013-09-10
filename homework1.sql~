@@ -6,3 +6,5 @@ SELECT *
 FROM customers;
 
 --adding something
+
+-- blah
