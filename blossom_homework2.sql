@@ -86,8 +86,8 @@ WHERE cid in
 --   in Dallas or Kyoto. Answer is: 4,5
 SELECT *
 FROM customers
-WHERE city <> 'Dallas' 
-AND  city <> 'Kyoto'
+WHERE city != 'Dallas' 
+AND  city != 'Kyoto'
 AND discount in
 	(SELECT discount
 	FROM customers
