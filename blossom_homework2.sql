@@ -45,7 +45,7 @@ WHERE cid not in
 	WHERE aid = 'a03'))
 
 -- 4) Get the cids and names of customers who ordered both product
---    p01 and p07 (c001 and c006)
+--    p01 and p07
 SELECT cid, name
 FROM customers
 WHERE cid in
@@ -83,7 +83,7 @@ WHERE cid in
 	OR city = 'Duluth'))
 
 -- 7) Find all customers who have the same discount as that of any customers
---   in Dallas or Kyoto. Answer is: 4,5
+--   in Dallas or Kyoto.
 SELECT *
 FROM customers
 WHERE city != 'Dallas' 
