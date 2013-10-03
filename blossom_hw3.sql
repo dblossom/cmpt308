@@ -36,27 +36,27 @@ WHERE pid in
 
 --4 Get the pids of products ordered through any agent who makes at least
 --  one order for a customer in Kyoto.  Use joins. (1,3,4,5,7)
-SELECT distinct o1.pid		
+SELECT DISTINCT o1.pid		
 FROM orders o,
      orders o1,
      customers c
-where o.cid = c.cid
-and o1.aid = o.aid
-and c.city = 'Kyoto'
-order by o1.pid asc
+WHERE o.cid = c.cid
+AND o1.aid = o.aid
+AND c.city = 'Kyoto'
+ORDER BY o1.pid ASC
 
 --5 Get the names of customers who have never placed an oder. Use a subquery.
 SELECT name
 FROM customers
-WHERE cid not in
+WHERE cid NOT IN
 	(SELECT cid
 	FROM orders);
 
 --6 Get the names of customers who have never placed an order. Use an outer join.
-SELECT distinct name
-FROM orders right outer join customers
-on orders.cid = customers.cid
-where orders.cid is null;
+SELECT DISTINCT name
+FROM orders RIGHT OUTER JOIN customers
+ON orders.cid = customers.cid
+WHERE orders.cid IS NULL;
 
 --7 Get the names of customers who placed at least one order through an agent in
 --  their city, along with those agent(s) names.
@@ -80,26 +80,54 @@ WHERE customers.city = agents.city
 --  number of products are made.
 SELECT name, city
 FROM customers
-where city in(
+WHERE city IN(
 		SELECT city
-		FROM(SELECT distinct p.city, count(p.city) as "city_count"
-			FROM products p
-		group by p.city
-		order by count(p.city) asc)subquery1
-		group by city
-		limit 1
+		FROM(SELECT distinct p.city, count(p.city) AS "city_count"
+		     FROM products p
+		     GROUP BY p.city
+		     ORDER BY count(p.city) ASC)subquery1
+		GROUP BY city
+		LIMIT 1
 );
 
 --10 Get the name and city of customers who live in a city where the most 
 --   number of products are made.
 SELECT c.name, c.city
 FROM customers c
-where city in(
+WHERE city IN(
 		SELECT city
-		FROM(SELECT distinct p.city, count(p.city) as "city_count"
+		FROM(SELECT DISTINCT p.city, count(p.city) AS "city_count"
 			FROM products p
-			group by p.city) sub1
-		order by city desc
+			GROUP BY p.city) sub1
+		ORDER BY city DESC
 )
-order by c.city asc
-limit 1;
+ORDER BY c.city ASC
+LIMIT 1;
+
+--11 Get the name and city of customers who live in any city where the most
+--   number of products are made
+
+--12 List the products whose priceUSD is above the average priceUSD
+SELECT p.name
+FROM products p
+WHERE priceUSD > (SELECT avg(priceUSD)
+		 FROM products)
+
+--13 Show the customer name, pid ordered, and the dollars for all customer
+--   orders, sorted by dollars from high to low
+SELECT c.name, o.pid, o.dollars
+FROM orders o, customers c
+WHERE o.cid = c.cid
+ORDER BY dollars DESC
+
+--14 Show all customers names (in order) and their total ordered, and 
+--   nothing more. Use coalesce to avoid showing NULLs.
+SELECT c.name,
+       CASE WHEN sum(o.dollars) IS NULL THEN 0.00
+            ELSE sum(o.dollars)
+       END
+FROM customers c LEFT OUTER JOIN orders o
+ON c.cid = o.cid
+GROUP BY c.cid
+ORDER BY sum(o.dollars) ASC
+
