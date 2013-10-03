@@ -89,3 +89,17 @@ where city in(
 		group by city
 		limit 1
 );
+
+--10 Get the name and city of customers who live in a city where the most 
+--   number of products are made.
+SELECT c.name, c.city
+FROM customers c
+where city in(
+		SELECT city
+		FROM(SELECT distinct p.city, count(p.city) as "city_count"
+			FROM products p
+			group by p.city) sub1
+		order by city desc
+)
+order by c.city asc
+limit 1;
