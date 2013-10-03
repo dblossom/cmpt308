@@ -106,6 +106,9 @@ LIMIT 1;
 
 --11 Get the name and city of customers who live in any city where the most
 --   number of products are made
+SELECT count(city)
+FROM products
+
 
 --12 List the products whose priceUSD is above the average priceUSD
 SELECT p.name
@@ -131,3 +134,37 @@ ON c.cid = o.cid
 GROUP BY c.cid
 ORDER BY sum(o.dollars) ASC
 
+--15 Show the names of all customers who bought products from agents
+--   based in New York along with the names of the products they ordered,
+--   and the names of the agents who sold it to them
+SELECT c.name AS "Customer Name",
+       a.name AS "Agent Name", 
+       p.name AS "Product Name" 
+FROM customers c, agents a, orders o, products p
+WHERE o.aid = a.aid
+AND   o.cid = c.cid
+AND   o.pid = p.pid
+AND   a.city = 'New York'
+
+--16 Write a query to check the accuracy of the dollars column in the
+--   Orders table. This means calculating Orders.dollars from other data in
+--   other tables and then comparing those values to the values in
+--   Orders.dollars.
+SELECT o.dollars AS "What We Charged", 
+((p.priceUSD * o.qty) - (c.discount / 100) * (p.priceUSD * o.qty)) AS "What They Should Have Paid"
+FROM orders o, customers c, products p
+WHERE o.cid = c.cid
+AND   o.pid = p.pid
+ORDER BY o.dollars, c.discount ASC
+
+--17 Create an error in the dollars column of the Orders table so that you
+--   can verify your accuracy checking query.
+INSERT INTO orders
+VALUES(9999,'dec','c001','a08','p01', 1000, 9999999)
+
+SELECT *
+FROM orders
+
+DELETE
+FROM orders
+WHERE ordno = 9999
