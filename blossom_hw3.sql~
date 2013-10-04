@@ -106,19 +106,8 @@ LIMIT 1;
 
 --11 Get the name and city of customers who live in any city where the most
 --   number of products are made
-SELECT c.name, c.city
-FROM customers c
-WHERE city IN(
-	      SELECT city
-              FROM(
-                   SELECT city, 
-                          RANK() OVER (ORDER BY COUNT(p.city) DESC) AS rank
-                   FROM products p
-                   GROUP BY city
-                  )AS subquery1
-              WHERE rank = 1
-              )
-;
+SELECT count(city)
+FROM products
 
 
 --12 List the products whose priceUSD is above the average priceUSD
