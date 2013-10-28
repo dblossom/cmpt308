@@ -27,12 +27,12 @@ WHERE pid in
 	(SELECT pid
 	FROM orders
 	WHERE aid in
-	(SELECT aid
-	FROM orders
-	WHERE cid in
-	(SELECT cid
-	FROM customers
-	WHERE city = 'Kyoto')))
+		(SELECT aid
+		FROM orders
+		WHERE cid in
+			(SELECT cid
+			FROM customers
+			WHERE city = 'Kyoto')));
 
 --4 Get the pids of products ordered through any agent who makes at least
 --  one order for a customer in Kyoto.  Use joins. (1,3,4,5,7)
@@ -97,8 +97,8 @@ FROM customers c
 WHERE city IN(
 		SELECT city
 		FROM(SELECT DISTINCT p.city, count(p.city) AS "city_count"
-			FROM products p
-			GROUP BY p.city) sub1
+		     FROM products p
+		     GROUP BY p.city) sub1
 		ORDER BY city DESC
 )
 ORDER BY c.city ASC
@@ -106,15 +106,26 @@ LIMIT 1;
 
 --11 Get the name and city of customers who live in any city where the most
 --   number of products are made
-SELECT count(city)
-FROM products
+SELECT c.name, c.city
+FROM customers c
+WHERE city IN(
+	      SELECT city
+              FROM(
+                   SELECT city, 
+                          RANK() OVER (ORDER BY COUNT(p.city) DESC) AS rank
+                   FROM products p
+                   GROUP BY city
+                  )AS subquery1
+              WHERE rank = 1
+              )
+;
 
 
 --12 List the products whose priceUSD is above the average priceUSD
 SELECT p.name
 FROM products p
 WHERE priceUSD > (SELECT avg(priceUSD)
-		 FROM products)
+		  FROM products)
 
 --13 Show the customer name, pid ordered, and the dollars for all customer
 --   orders, sorted by dollars from high to low
@@ -151,7 +162,7 @@ AND   a.city = 'New York'
 --   other tables and then comparing those values to the values in
 --   Orders.dollars.
 SELECT o.dollars AS "What We Charged", 
-((p.priceUSD * o.qty) - (c.discount / 100) * (p.priceUSD * o.qty)) AS "What They Should Have Paid"
+       ((p.priceUSD * o.qty) - (c.discount / 100) * (p.priceUSD * o.qty)) AS "What They Should Have Paid"
 FROM orders o, customers c, products p
 WHERE o.cid = c.cid
 AND   o.pid = p.pid
@@ -159,12 +170,16 @@ ORDER BY o.dollars, c.discount ASC
 
 --17 Create an error in the dollars column of the Orders table so that you
 --   can verify your accuracy checking query.
+
+--insert an incorrect 'dollars' amount.
 INSERT INTO orders
 VALUES(9999,'dec','c001','a08','p01', 1000, 9999999)
 
+--did the above get entered
 SELECT *
 FROM orders
 
+--after running query number 16, remove order 9999
 DELETE
 FROM orders
 WHERE ordno = 9999
